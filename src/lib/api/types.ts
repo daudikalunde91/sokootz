@@ -60,9 +60,9 @@ export interface Page<T> {
 }
 
 export interface SearchParams {
-  q?: string;
-  category?: string;
-  region?: string;
-  type?: ListingType;
-  page?: number;
+  q?: string | undefined;
+  category?: string | undefined;
+  region?: string | undefined;
+  type?: ListingType | undefined;
+  page?: number | undefined;
 }

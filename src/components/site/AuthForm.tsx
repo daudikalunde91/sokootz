@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import type { ZodType } from "zod";
+import type { z, ZodTypeAny } from "zod";
 import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/api/client";
@@ -12,13 +12,13 @@ export interface Field {
 }
 
 /** Generic validated form. `onSubmit` calls a real service; errors are shown, never faked as success. */
-export function AuthForm({ title, subtitle, fields, schema, submitLabel, onSubmit, footer }: {
+export function AuthForm<S extends ZodTypeAny>({ title, subtitle, fields, schema, submitLabel, onSubmit, footer }: {
   title: string;
-  subtitle?: string;
+  subtitle?: string | undefined;
   fields: Field[];
-  schema: ZodType;
+  schema: S;
   submitLabel: string;
-  onSubmit: (data: Record<string, string>) => Promise<unknown>;
+  onSubmit: (data: z.infer<S>) => Promise<unknown>;
   footer?: ReactNode;
 }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -39,7 +39,7 @@ export function AuthForm({ title, subtitle, fields, schema, submitLabel, onSubmi
     setErrors({});
     setBusy(true);
     try {
-      await onSubmit(data);
+      await onSubmit(parsed.data);
     } catch (err) {
       setStatus(errorMessage(err) + " Accounts open when the marketplace launches.");
     } finally {
