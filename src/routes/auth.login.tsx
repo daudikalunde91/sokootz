@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth/login")({
           { name: "email", label: "Email", type: "email", autoComplete: "email" },
           { name: "password", label: "Password", type: "password", autoComplete: "current-password" },
         ]}
-        onSubmit={(d) => authService.login({ email: d.email, password: d.password })}
+        onSubmit={(d) => authService.login(d)}
         footer={<><Link to="/auth/forgot-password" className="text-neon hover:underline">Forgot password?</Link> · New here? <Link to="/auth/register" className="text-neon hover:underline">Create an account</Link></>}
       />
     </div>

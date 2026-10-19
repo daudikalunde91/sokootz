@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth/forgot-password")({
         schema={forgotSchema}
         submitLabel="Send reset link"
         fields={[{ name: "email", label: "Email", type: "email", autoComplete: "email" }]}
-        onSubmit={(d) => authService.requestPasswordReset({ email: d.email })}
+        onSubmit={(d) => authService.requestPasswordReset(d)}
         footer={<Link to="/auth/login" className="text-neon hover:underline">Back to log in</Link>}
       />
     </div>

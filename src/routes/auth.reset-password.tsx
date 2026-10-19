@@ -24,7 +24,7 @@ function Reset() {
           { name: "password", label: "New password", type: "password", autoComplete: "new-password" },
           { name: "confirm", label: "Confirm password", type: "password", autoComplete: "new-password" },
         ]}
-        onSubmit={(d) => authService.confirmPasswordReset({ token: token ?? "", password: d.password })}
+        onSubmit={(d) => authService.confirmPasswordReset({ token: token ?? "", password: d.password as string })}
       />
     </div>
   );

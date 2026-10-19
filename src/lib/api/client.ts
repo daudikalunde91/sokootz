@@ -36,7 +36,7 @@ export function codeFromStatus(status: number): ApiErrorCode {
 }
 
 export function getApiBaseUrl(): string | null {
-  const url = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  const url = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
   return url && url.trim() ? url.replace(/\/$/, "") : null;
 }
 
