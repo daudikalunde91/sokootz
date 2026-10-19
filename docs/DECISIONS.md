@@ -126,3 +126,9 @@ Record unresolved decisions, their impact and the person or stage responsible fo
 | DEC-017 and DEC-018 Support channel, privacy and legal review | Required before launch | Project owner |
 | DEC-019 Documentation location | Link correctness | Project owner |
 | DEC-003 Technology stack confirmation | Assistant must follow the confirmed stack | Project owner |
+
+### DEC-018 — Website frontend stack
+- Date: 2026-10-18
+- Status: Accepted for the website.
+- Decision: The website uses React 19 on TanStack Start (Vite), Tailwind v4. Backend remains the proposed Django REST API (DEC-003), reached only through `src/lib/api`.
+- Consequence: Until the API exists, data pages show empty states and forms report that accounts are not open yet. Contracts: API_CONTRACTS.md.
