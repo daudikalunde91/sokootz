@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
 import { PlannedBadge } from "./states";
+import { CONTACT, whatsappLink } from "@/lib/contact";
 
 export function Footer() {
   return (
@@ -9,8 +10,13 @@ export function Footer() {
         <div className="md:col-span-2">
           <Logo />
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">Find businesses, products and services across Tanzania.</p>
-          <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-            Language: English <span aria-hidden>·</span> Kiswahili <PlannedBadge />
+          <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
+            <li><a href={`tel:${CONTACT.phone}`} className="hover:text-foreground">Simu: {CONTACT.phoneDisplay}</a></li>
+            <li><a href={whatsappLink} target="_blank" rel="noreferrer" className="hover:text-foreground">WhatsApp: {CONTACT.whatsappDisplay}</a></li>
+            <li><a href={`mailto:${CONTACT.email}`} className="hover:text-foreground">{CONTACT.email}</a></li>
+          </ul>
+          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+            Assistant: Kiswahili · English <PlannedBadge>Site translation coming soon</PlannedBadge>
           </div>
         </div>
         <div>

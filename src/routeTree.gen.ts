@@ -17,6 +17,7 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
@@ -66,6 +67,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/search': typeof SearchRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/categories': typeof CategoriesRoute
   '/contact': typeof ContactRoute
   '/search': typeof SearchRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/search': typeof SearchRoute
+  '/api/assistant': typeof ApiAssistantRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/search'
+    | '/api/assistant'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/contact'
     | '/search'
+    | '/api/assistant'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/search'
+    | '/api/assistant'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/register'
@@ -250,6 +262,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   SearchRoute: typeof SearchRoute
+  ApiAssistantRoute: typeof ApiAssistantRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
@@ -314,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/forgot-password': {
@@ -416,6 +436,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRouteWithChildren,
   SearchRoute: SearchRoute,
+  ApiAssistantRoute: ApiAssistantRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,

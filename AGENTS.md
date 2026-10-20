@@ -14,3 +14,4 @@
 - All backend access goes through `src/lib/api` (client + services) — keeps web and future mobile app on one contract.
 - Never show fake listings or fake success; unbuilt features are labeled Planned/Coming soon.
 - Colors only via tokens in `src/styles.css`.
+- AI assistant streams via server route src/routes/api/assistant.ts (Lovable AI Gateway); no listing data until the Django API exists.
