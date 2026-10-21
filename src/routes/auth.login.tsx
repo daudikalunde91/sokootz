@@ -10,6 +10,7 @@ export const Route = createFileRoute("/auth/login")({
     <div className="px-4 py-16">
       <AuthForm
         title="Welcome back"
+        plannedGoogle
         subtitle="Log in to manage your business and saved listings."
         schema={loginSchema}
         submitLabel="Log in"

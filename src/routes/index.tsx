@@ -24,7 +24,7 @@ function Home() {
   const cats = useQuery({ queryKey: ["categories"], queryFn: categoriesService.list, retry: false });
   return (
     <>
-      <section className="mx-auto max-w-5xl px-4 pb-16 pt-16 text-center md:pt-28">
+      <section className="mx-auto max-w-5xl px-4 pb-12 pt-10 text-center md:pb-16 md:pt-28">
         <p className="mb-5 inline-flex items-center gap-2 rounded-full border bg-surface/70 px-3 py-1 text-xs text-muted-foreground">
           <span className="size-1.5 rounded-full bg-neon" aria-hidden /> Tanzania-first marketplace
         </p>
@@ -38,9 +38,9 @@ function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 md:px-6" aria-labelledby="cat-h">
-        <div className="mb-6 flex items-end justify-between">
-          <h2 id="cat-h" className="text-2xl font-bold">Browse categories</h2>
-          <Link to="/categories" className="text-sm text-neon hover:underline">All categories</Link>
+        <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <h2 id="cat-h" className="min-w-0 text-xl font-bold sm:text-2xl">Browse categories</h2>
+          <Link to="/categories" className="py-3 text-sm text-neon hover:underline">All categories</Link>
         </div>
         {cats.isPending ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}</div>
@@ -63,19 +63,19 @@ function Home() {
         ].map(({ icon: Icon, t, b, planned }) => (
           <div key={t} className="rounded-2xl border bg-surface p-6 shadow-card">
             <Icon className="mb-4 size-6 text-neon" aria-hidden />
-            <h3 className="flex items-center gap-2 font-semibold">{t} {planned && <PlannedBadge />}</h3>
+            <h3 className="flex flex-wrap items-center gap-2 font-semibold">{t} {planned && <PlannedBadge />}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{b}</p>
           </div>
         ))}
       </section>
 
       <section className="mx-auto mt-20 max-w-7xl px-4 md:px-6">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border bg-gradient-primary p-8 md:flex-row md:items-center md:p-12">
-          <div>
+        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl border bg-gradient-primary p-5 sm:p-8 lg:flex-row lg:items-center lg:p-12">
+          <div className="min-w-0">
             <h2 className="text-2xl font-bold text-primary-foreground md:text-3xl">Run a business in Tanzania?</h2>
             <p className="mt-2 text-primary-foreground/85">Get ready to list your products and services on SokoTZ.</p>
           </div>
-          <div className="flex gap-3">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 lg:shrink-0">
             <Button asChild variant="secondary" size="lg"><Link to="/dashboard">List your business</Link></Button>
             <Button asChild variant="ghost" size="lg" className="text-primary-foreground"><Link to="/assistant"><Sparkles aria-hidden /> Assistant</Link></Button>
           </div>

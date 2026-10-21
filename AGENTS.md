@@ -15,3 +15,5 @@
 - Never show fake listings or fake success; unbuilt features are labeled Planned/Coming soon.
 - Colors only via tokens in `src/styles.css`.
 - AI assistant streams via server route src/routes/api/assistant.ts (Lovable AI Gateway); no listing data until the Django API exists.
+- Shared account forms enforce deferred access before submission; this prevents credentials being sent while authentication is not available.
+- The assistant uses an internally scrolling message list and a viewport-height mobile layout so streaming never scrolls the entire page away from the input.
