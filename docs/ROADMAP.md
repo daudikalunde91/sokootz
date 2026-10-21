@@ -11,6 +11,7 @@ Repository structure, documentation, environment setup, configuration and baseli
 
 ## Stage 2 — Authentication
 Registration, login, logout, password recovery, validation and role permissions.
+Status: **Blocked** — on 2026-10-21 the owner confirmed waiting for the separate Django API instead of enabling Lovable Cloud. User profiles are required. Email account forms and Continue with Google remain Coming soon; no account creation, sign-in or recovery is currently available.
 
 ## Stage 3 — Business Profiles
 Business onboarding, profile editing, contact information and location.

@@ -4,6 +4,9 @@ import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/lib/api/client";
 
+// The owner chose to defer all account access until the Django service is ready.
+const accountsAvailable = false;
+
 export interface Field {
   name: string;
   label: string;
@@ -28,6 +31,7 @@ export function AuthForm<S extends ZodTypeAny>({ title, subtitle, fields, schema
 
   async function handle(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!accountsAvailable) return;
     setStatus(null);
     const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     const parsed = schema.safeParse(data);
