@@ -43,7 +43,9 @@ function Assistant() {
     const saved = localStorage.getItem("sokotz-lang");
     if (saved === "en" || saved === "sw") setLang(saved);
   }, []);
-  useEffect(() => endRef.current?.scrollIntoView({ block: "end" }), [messages]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "end" });
+  }, [messages]);
 
   function changeLang(l: Lang) { setLang(l); localStorage.setItem("sokotz-lang", l); }
 
