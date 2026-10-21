@@ -5,8 +5,8 @@ import { ApiError } from "@/lib/api/client";
 
 export function PlannedBadge({ children = "Planned" }: { children?: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-violet/40 bg-violet/10 px-2.5 py-0.5 text-xs font-medium text-violet">
-      <Clock className="size-3" aria-hidden /> {children}
+    <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-violet/40 bg-violet/10 px-2.5 py-0.5 text-xs font-medium text-violet">
+      <Clock className="size-3 shrink-0" aria-hidden /> {children}
     </span>
   );
 }
@@ -52,7 +52,7 @@ export function PageHeader({ eyebrow, title, body, children }: { eyebrow?: strin
   return (
     <header className="mb-8">
       {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neon">{eyebrow}</p>}
-      <h1 className="text-3xl font-bold md:text-4xl">{title}</h1>
+      <h1 className="break-words text-3xl font-bold md:text-4xl">{title}</h1>
       {body && <p className="mt-3 max-w-2xl text-muted-foreground">{body}</p>}
       {children}
     </header>

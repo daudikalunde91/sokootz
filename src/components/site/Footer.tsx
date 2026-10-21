@@ -5,7 +5,7 @@ import { CONTACT, whatsappLink } from "@/lib/contact";
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t bg-surface/50">
+    <footer className="mt-12 border-t bg-surface/50 md:mt-24">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-4 md:px-6">
         <div className="md:col-span-2">
           <Logo />
@@ -15,7 +15,7 @@ export function Footer() {
             <li><a href={whatsappLink} target="_blank" rel="noreferrer" className="hover:text-foreground">WhatsApp: {CONTACT.whatsappDisplay}</a></li>
             <li><a href={`mailto:${CONTACT.email}`} className="hover:text-foreground">{CONTACT.email}</a></li>
           </ul>
-          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-3 flex flex-col items-start gap-2 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center">
             Assistant: Kiswahili · English <PlannedBadge>Site translation coming soon</PlannedBadge>
           </div>
         </div>

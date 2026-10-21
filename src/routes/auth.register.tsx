@@ -10,6 +10,7 @@ export const Route = createFileRoute("/auth/register")({
     <div className="px-4 py-16">
       <AuthForm
         title="Create your account"
+        plannedGoogle
         schema={registerSchema}
         submitLabel="Create account"
         fields={[
