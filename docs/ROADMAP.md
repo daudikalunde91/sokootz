@@ -1,5 +1,17 @@
 # SokoTZ — Development Roadmap
 
+## Current status (2026-10-23)
+| Stage | Status |
+|---|---|
+| 2 Authentication | **Implemented, tested on emulators.** Live use blocked on the Firebase Web App keys and authorized domains. |
+| 3 Business profiles | **Implemented, tested on emulators** (create, edit; one per owner). |
+| 4 Listings | **Implemented, tested on emulators** (create, edit, hide/publish, delete, inline image). No moderation queue exists (Android publishes directly). |
+| 5 Discovery | **Implemented** (home, categories, search, filters, detail, contact, pagination). Guest access depends on deployed rules. |
+| 6 Administration | Not started — needs a trusted server with the Admin SDK. |
+| Assistant marketplace grounding | **Implemented** (public listings retrieved per question). |
+The Stage 2 "blocked on Django" note below is superseded by DEC-020.
+
+
 ## Status Definitions
 - Not started: work has not begun.
 - In progress: work is actively being implemented.

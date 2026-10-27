@@ -1,5 +1,20 @@
 # SokoTZ — Database Design
 
+## 0. Implemented schema (Cloud Firestore, shared with Android — verified 2026-10-23)
+The "candidate entities" below were proposals; the implemented store is the Android app's named Firestore database. Field names come from Android `MarketplaceModels.kt`.
+
+| Collection | Fields |
+|---|---|
+| `users/{uid}` | userId, displayName, email, phoneNumber, role (CUSTOMER/BUSINESS_OWNER/ADMIN), photoUrl, aiPreferredName, hasAcceptedTerms, createdAt, updatedAt |
+| `businesses/{id}` | ownerId, name, categorySlug, categoryName, descriptionSw, descriptionEn, city, district, phoneNumber, whatsappNumber, isVerified, rating, reviewCount, openingHours, address, createdAt, updatedAt |
+| `listings/{id}` | businessId, ownerId, businessName, titleSw, titleEn, descriptionSw, descriptionEn, priceTzs (int), categorySlug, type (PRODUCT/SERVICE), status (PUBLISHED/PENDING_REVIEW/DRAFT), city, isFeatured, imageUrl (data URI ≤250k chars), viewsCount, phoneNumber, whatsappNumber, createdAt, updatedAt |
+| `listings/{id}/viewers/{uid}` | viewedAt |
+
+- No `slug`, `images[]`, category or location collections exist. Categories/regions are fixed lists in both clients.
+- No assistant conversation storage exists.
+- No migrations were performed; any field rename needs an approved plan covering both clients.
+
+
 ## 1. Principles
 Use a consistent, normalized schema with clear ownership, constraints, relationships and migration history. Inspect existing models before proposing changes.
 

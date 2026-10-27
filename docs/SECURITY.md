@@ -1,5 +1,14 @@
 # SokoTZ — Security Requirements
 
+## 0. Implemented controls (2026-10-23)
+- Authentication: Firebase Auth (email/password, Google); passwords are handled only by Firebase. Sessions persist in Firebase's browser storage, not app-managed localStorage.
+- Authorization: Firestore Security Rules (Android repo). Website writes are built from the Auth UID and never send privileged fields (role, isVerified, rating, reviewCount, isFeatured, viewsCount, ownerId/businessId changes). 23 emulator rule tests cover these cases.
+- Public pages show only PUBLISHED listings. **Known gap:** the rules still let anyone read DRAFT listings directly (AUDIT_REPORT §3.4).
+- **Known gap:** deployed production rules differ from the repository rules (AUDIT_REPORT §3.1).
+- Uploads: JPG/PNG/WebP ≤10 MB, re-encoded to ≤600px JPEG under the 250,000-char rule limit; only safe image sources are rendered.
+- Secrets: none in browser code. The Firebase web config is publishable. AI credentials stay in the server route.
+
+
 ## 1. Core Rule
 Security controls must be implemented and verified, not merely described in documentation.
 

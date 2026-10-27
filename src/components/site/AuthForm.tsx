@@ -1,52 +1,83 @@
 import { useState, type ReactNode } from "react";
 import type { z, ZodTypeAny } from "zod";
-import { Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { errorMessage } from "@/lib/api/client";
+import { authErrorMessage } from "@/lib/auth/errors";
+import { ApiError } from "@/lib/api/client";
+import { FormField, readForm, zodErrors, type Field } from "./FormField";
 
-// The owner chose to defer all account access until the Django service is ready.
-const accountsAvailable = false;
+export type { Field };
 
-export interface Field {
-  name: string;
-  label: string;
-  type?: string;
-  autoComplete?: string;
-}
-
-/** Generic validated form. `onSubmit` calls a real service; errors are shown, never faked as success. */
-export function AuthForm<S extends ZodTypeAny>({ title, subtitle, fields, schema, submitLabel, onSubmit, footer, plannedGoogle = false }: {
+/**
+ * Validated account form backed by Firebase Authentication. `onSubmit` performs
+ * the real call; success text is only shown after it resolves.
+ */
+export function AuthForm<S extends ZodTypeAny>({
+  title,
+  subtitle,
+  fields,
+  schema,
+  submitLabel,
+  onSubmit,
+  footer,
+  onGoogle,
+  configured = true,
+  successMessage,
+  disabled = false,
+}: {
   title: string;
-  subtitle?: string | undefined;
+  subtitle?: ReactNode;
   fields: Field[];
   schema: S;
   submitLabel: string;
   onSubmit: (data: z.infer<S>) => Promise<unknown>;
   footer?: ReactNode;
-  plannedGoogle?: boolean;
+  /** When provided, shows a working "Continue with Google" button. */
+  onGoogle?: () => Promise<unknown>;
+  /** False when the Firebase web app keys are missing; the form is then disabled. */
+  configured?: boolean;
+  successMessage?: string;
+  disabled?: boolean;
 }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<{ kind: "error" | "success"; text: string } | null>(null);
+  const [busy, setBusy] = useState<false | "form" | "google">(false);
+  const off = !configured || disabled;
+
+  function failure(err: unknown) {
+    const text = err instanceof ApiError ? err.message : authErrorMessage(err);
+    if (text) setStatus({ kind: "error", text });
+  }
 
   async function handle(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!accountsAvailable) return;
+    if (off || busy) return;
     setStatus(null);
-    const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
-    const parsed = schema.safeParse(data);
+    const parsed = schema.safeParse(readForm(e.currentTarget));
     if (!parsed.success) {
-      const errs: Record<string, string> = {};
-      for (const issue of parsed.error.issues) errs[String(issue.path[0])] ??= issue.message;
-      setErrors(errs);
+      setErrors(zodErrors(parsed.error.issues));
       return;
     }
     setErrors({});
-    setBusy(true);
+    setBusy("form");
     try {
       await onSubmit(parsed.data);
+      if (successMessage) setStatus({ kind: "success", text: successMessage });
     } catch (err) {
-      setStatus(errorMessage(err) + " Accounts open when the marketplace launches.");
+      failure(err);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function google() {
+    if (off || busy || !onGoogle) return;
+    setStatus(null);
+    setBusy("google");
+    try {
+      await onGoogle();
+    } catch (err) {
+      failure(err);
     } finally {
       setBusy(false);
     }
@@ -55,38 +86,68 @@ export function AuthForm<S extends ZodTypeAny>({ title, subtitle, fields, schema
   return (
     <div className="mx-auto w-full max-w-md rounded-2xl border bg-surface p-6 shadow-card md:p-8">
       <h1 className="text-2xl font-bold">{title}</h1>
-      {subtitle && <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>}
-      <div role="status" className="mt-4 flex items-start gap-2 rounded-lg border bg-accent p-3 text-sm">
-        <Info className="mt-0.5 size-4 shrink-0 text-neon" aria-hidden />
-        <p><strong>Coming soon</strong> — Akaunti zitapatikana baada ya huduma ya SokoTZ kuwa tayari.</p>
-      </div>
-      {plannedGoogle && (
-        <Button type="button" variant="outline" disabled className="mt-5 h-auto min-h-11 w-full flex-wrap whitespace-normal py-3">
-          <span aria-hidden className="font-bold">G</span> Continue with Google <span className="text-xs text-muted-foreground">Coming soon</span>
-        </Button>
+      {subtitle && <div className="mt-2 text-sm text-muted-foreground">{subtitle}</div>}
+      {!configured && (
+        <div
+          role="status"
+          className="mt-4 flex items-start gap-2 rounded-lg border bg-accent p-3 text-sm"
+        >
+          <Info className="mt-0.5 size-4 shrink-0 text-neon" aria-hidden />
+          <p>
+            <strong>Not connected yet</strong> — Akaunti zitapatikana baada ya muunganisho wa SokoTZ
+            kukamilika (Accounts open once the SokoTZ connection is set up).
+          </p>
+        </div>
+      )}
+      {onGoogle && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={off || !!busy}
+            onClick={google}
+            className="mt-5 h-auto min-h-11 w-full flex-wrap whitespace-normal py-3"
+          >
+            {busy === "google" ? (
+              <Loader2 className="animate-spin" aria-hidden />
+            ) : (
+              <span aria-hidden className="font-bold">
+                G
+              </span>
+            )}{" "}
+            Continue with Google
+          </Button>
+          <div className="mt-5 flex items-center gap-3 text-xs text-muted-foreground" aria-hidden>
+            <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+          </div>
+        </>
       )}
       <form noValidate onSubmit={handle} className="mt-6 space-y-4">
         {fields.map((f) => (
-          <div key={f.name}>
-            <label htmlFor={f.name} className="mb-1.5 block text-sm font-medium">{f.label}</label>
-            <input
-              id={f.name}
-              name={f.name}
-              type={f.type ?? "text"}
-              autoComplete={f.autoComplete}
-              aria-invalid={!!errors[f.name]}
-              aria-describedby={errors[f.name] ? `${f.name}-err` : undefined}
-               className="h-11 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus:border-neon aria-[invalid=true]:border-destructive"
-            />
-            {errors[f.name] && <p id={`${f.name}-err`} className="mt-1 text-xs text-destructive">{errors[f.name]}</p>}
-          </div>
+          <FormField key={f.name} f={f} error={errors[f.name]} />
         ))}
         {status && (
-          <div role="status" className="flex gap-2 rounded-lg border border-violet/40 bg-violet/10 p-3 text-sm">
-            <Info className="mt-0.5 size-4 shrink-0 text-violet" aria-hidden /> {status}
+          <div
+            role={status.kind === "error" ? "alert" : "status"}
+            className={`flex gap-2 rounded-lg border p-3 text-sm ${status.kind === "error" ? "border-destructive/50 bg-destructive/10" : "border-neon/40 bg-neon/10"}`}
+          >
+            {status.kind === "error" ? (
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+            ) : (
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-neon" aria-hidden />
+            )}
+            <span>{status.text}</span>
           </div>
         )}
-        <Button type="submit" variant="hero" className="h-11 w-full" disabled>{busy ? "Please wait…" : submitLabel}</Button>
+        <Button type="submit" variant="hero" className="h-11 w-full" disabled={off || !!busy}>
+          {busy === "form" ? (
+            <>
+              <Loader2 className="animate-spin" aria-hidden /> Please wait…
+            </>
+          ) : (
+            submitLabel
+          )}
+        </Button>
       </form>
       {footer && <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>}
     </div>

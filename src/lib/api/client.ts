@@ -1,8 +1,7 @@
 /**
- * Central API client. Every page talks to the backend through here so the
- * web and mobile clients share one contract (docs/API_CONTRACTS.md).
- * Auth uses a bearer token supplied by a token provider, not cookies,
- * so the same scheme works on mobile.
+ * Shared error model for every data call. The marketplace data source is the
+ * Android app's Firebase project (Auth + named Firestore DB); Firebase errors are
+ * normalised here so pages render one consistent set of states.
  */
 export type ApiErrorCode =
   | "not_configured"
@@ -12,6 +11,7 @@ export type ApiErrorCode =
   | "not_found"
   | "validation"
   | "rate_limited"
+  | "index_required"
   | "server";
 
 export class ApiError extends Error {
@@ -26,62 +26,44 @@ export class ApiError extends Error {
   }
 }
 
-export function codeFromStatus(status: number): ApiErrorCode {
-  if (status === 400 || status === 422) return "validation";
-  if (status === 401) return "unauthorized";
-  if (status === 403) return "forbidden";
-  if (status === 404) return "not_found";
-  if (status === 429) return "rate_limited";
-  return "server";
-}
-
-export function getApiBaseUrl(): string | null {
-  const url = import.meta.env["VITE_API_BASE_URL"] as string | undefined;
-  return url && url.trim() ? url.replace(/\/$/, "") : null;
-}
-
-let tokenProvider: () => string | null = () => null;
-export function setTokenProvider(fn: () => string | null) {
-  tokenProvider = fn;
-}
-
-export async function apiRequest<T>(
-  path: string,
-  init: RequestInit & { query?: Record<string, string | number | undefined> } = {},
-): Promise<T> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    throw new ApiError("not_configured", "The SokoTZ marketplace service is not connected yet.");
+/** Maps a Firestore / Firebase error (`{ code: "permission-denied" }`) to an ApiError. */
+export function toApiError(e: unknown): ApiError {
+  if (e instanceof ApiError) return e;
+  const code =
+    typeof e === "object" && e && "code" in e ? String((e as { code: unknown }).code) : "";
+  const message = e instanceof Error ? e.message : "";
+  switch (code.replace(/^firestore\//, "")) {
+    case "permission-denied":
+      return new ApiError("forbidden", "You don't have permission to do that.");
+    case "unauthenticated":
+      return new ApiError("unauthorized", "Please log in to continue.");
+    case "not-found":
+      return new ApiError("not_found", "Not found.");
+    case "unavailable":
+    case "deadline-exceeded":
+      return new ApiError("network", "Network error. Check your connection and try again.");
+    case "resource-exhausted":
+      return new ApiError("rate_limited", "Too many requests. Please wait a moment and try again.");
+    case "invalid-argument":
+      return new ApiError("validation", "Some details are not valid. Please check the form.");
+    case "failed-precondition":
+      if (/index/i.test(message)) {
+        // Firestore includes a console link to create the index; keep it in the console for admins.
+        console.error("[SokoTZ] Firestore index required:", message);
+        return new ApiError(
+          "index_required",
+          "This view needs a database index that has not been created yet.",
+        );
+      }
+      return new ApiError("server", "The request could not be completed.");
+    default:
+      return new ApiError("server", "Something went wrong. Please try again.");
   }
-  const url = new URL(base + path);
-  for (const [k, v] of Object.entries(init.query ?? {})) {
-    if (v !== undefined && v !== "") url.searchParams.set(k, String(v));
-  }
-  const headers = new Headers(init.headers);
-  headers.set("Accept", "application/json");
-  if (init.body) headers.set("Content-Type", "application/json");
-  const token = tokenProvider();
-  if (token) headers.set("Authorization", `Bearer ${token}`);
-
-  let res: Response;
-  try {
-    res = await fetch(url, { ...init, headers });
-  } catch {
-    throw new ApiError("network", "Network error. Check your connection and try again.");
-  }
-  if (!res.ok) {
-    let body: { detail?: string; errors?: Record<string, string[]> } = {};
-    try {
-      body = await res.json();
-    } catch {
-      /* non-JSON error */
-    }
-    throw new ApiError(codeFromStatus(res.status), body.detail ?? `Request failed (${res.status})`, res.status, body.errors);
-  }
-  return (res.status === 204 ? undefined : await res.json()) as T;
 }
 
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiError) return e.message;
-  return "Something went wrong. Please try again.";
+  // Plain local errors (no Firebase code) carry a message written for the user.
+  if (e instanceof Error && !("code" in e) && e.message) return e.message;
+  return toApiError(e).message;
 }

@@ -11,9 +11,11 @@
 
 ## SokoTZ rules
 - Product docs live in `docs/`; read them before changing features (docs/AGENTS.source.md is the original agent guide).
-- All backend access goes through `src/lib/api` (client + services) — keeps web and future mobile app on one contract.
-- Never show fake listings or fake success; unbuilt features are labeled Planned/Coming soon.
+- The shared backend is the Android app's Firebase project and named Firestore DB (docs/FIREBASE_SETUP.md); never use the "(default)" DB or add a second data store, because Android reads the same documents.
+- All data access goes through `src/lib/api` (services + mappers); Firestore field names/enums follow Android `MarketplaceModels.kt` so both clients stay compatible.
+- Writes are built by `src/lib/api/mappers.ts` from the Auth UID and never send privileged fields; firestore.rules (Android repo, mirrored in `firebase/firestore.rules`) is the enforcement, so rule changes need emulator tests in `tests/rules`.
+- Public views show only PUBLISHED listings; the Assistant receives only those, retrieved per question in the browser.
+- Never show fake listings, ratings or success; unbuilt features are labeled Planned/Coming soon.
 - Colors only via tokens in `src/styles.css`.
-- AI assistant streams via server route src/routes/api/assistant.ts (Lovable AI Gateway); no listing data until the Django API exists.
-- Shared account forms enforce deferred access before submission; this prevents credentials being sent while authentication is not available.
+- AI assistant streams via server route src/routes/api/assistant.ts (Lovable AI Gateway); AI credentials never reach browser code.
 - The assistant uses an internally scrolling message list and a viewport-height mobile layout so streaming never scrolls the entire page away from the input.

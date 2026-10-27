@@ -107,6 +107,9 @@ Recorded in the 2026-10-18 documentation update for [SOKOTZ_ASSISTANT.md](SOKOTZ
 ### DEC-019 — Documentation location
 - Status: Proposed — decision pending; no option chosen. The documentation set was delivered as a single folder, while several documents refer to a docs/ folder. Decide whether to keep a flat layout or place reference documents in docs/, then update links.
 
+## DEC-020 Shared backend: Android Firebase project — Accepted (2026-10-23)
+The owner's integration brief directs the website to use the Android app's Firebase Auth and named Firestore database instead of the proposed Django/PostgreSQL API. Accepted and implemented. Django/PostgreSQL proposals (and DEC-003's stack question for the backend) are superseded. Privileged admin actions will need a trusted server with the Firebase Admin SDK (pending).
+
 ## Change Policy
 Do not silently overwrite important decisions. Add a new record and mark the previous decision as superseded when necessary.
 

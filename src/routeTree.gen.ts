@@ -22,7 +22,7 @@ import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-pas
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
-import { Route as BusinessSlugRouteImport } from './routes/business.$slug'
+import { Route as BusinessIdRouteImport } from './routes/business.$id'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardListingsRouteImport } from './routes/dashboard.listings'
 import { Route as DashboardOnboardingRouteImport } from './routes/dashboard.onboarding'
@@ -94,9 +94,9 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BusinessSlugRoute = BusinessSlugRouteImport.update({
-  id: '/business/$slug',
-  path: '/business/$slug',
+const BusinessIdRoute = BusinessIdRouteImport.update({
+  id: '/business/$id',
+  path: '/business/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -139,7 +139,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/business/$slug': typeof BusinessSlugRoute
+  '/business/$id': typeof BusinessIdRoute
   '/dashboard/listings': typeof DashboardListingsRoute
   '/dashboard/onboarding': typeof DashboardOnboardingRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -159,7 +159,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/business/$slug': typeof BusinessSlugRoute
+  '/business/$id': typeof BusinessIdRoute
   '/dashboard/listings': typeof DashboardListingsRoute
   '/dashboard/onboarding': typeof DashboardOnboardingRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -181,7 +181,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/business/$slug': typeof BusinessSlugRoute
+  '/business/$id': typeof BusinessIdRoute
   '/dashboard/listings': typeof DashboardListingsRoute
   '/dashboard/onboarding': typeof DashboardOnboardingRoute
   '/dashboard/profile': typeof DashboardProfileRoute
@@ -204,7 +204,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
-    | '/business/$slug'
+    | '/business/$id'
     | '/dashboard/listings'
     | '/dashboard/onboarding'
     | '/dashboard/profile'
@@ -224,7 +224,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
-    | '/business/$slug'
+    | '/business/$id'
     | '/dashboard/listings'
     | '/dashboard/onboarding'
     | '/dashboard/profile'
@@ -245,7 +245,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/reset-password'
-    | '/business/$slug'
+    | '/business/$id'
     | '/dashboard/listings'
     | '/dashboard/onboarding'
     | '/dashboard/profile'
@@ -267,7 +267,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
-  BusinessSlugRoute: typeof BusinessSlugRoute
+  BusinessIdRoute: typeof BusinessIdRoute
   ListingIdRoute: typeof ListingIdRoute
 }
 
@@ -364,11 +364,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/business/$slug': {
-      id: '/business/$slug'
-      path: '/business/$slug'
-      fullPath: '/business/$slug'
-      preLoaderRoute: typeof BusinessSlugRouteImport
+    '/business/$id': {
+      id: '/business/$id'
+      path: '/business/$id'
+      fullPath: '/business/$id'
+      preLoaderRoute: typeof BusinessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -441,7 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
-  BusinessSlugRoute: BusinessSlugRoute,
+  BusinessIdRoute: BusinessIdRoute,
   ListingIdRoute: ListingIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 function NotFoundComponent() {
   return (
@@ -81,9 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SokoTZ — Tanzania's business marketplace" },
-      { name: "description", content: "Discover businesses, products and services across Tanzania." },
+      {
+        name: "description",
+        content: "Discover businesses, products and services across Tanzania.",
+      },
       { property: "og:title", content: "SokoTZ — Tanzania's business marketplace" },
-      { property: "og:description", content: "Discover businesses, products and services across Tanzania." },
+      {
+        property: "og:description",
+        content: "Discover businesses, products and services across Tanzania.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#080B18" },
@@ -91,7 +99,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -130,7 +141,10 @@ function OfflineBanner() {
   }, []);
   if (!offline) return null;
   return (
-    <div role="status" className="bg-destructive px-4 py-2 text-center text-sm text-destructive-foreground">
+    <div
+      role="status"
+      className="bg-destructive px-4 py-2 text-center text-sm text-destructive-foreground"
+    >
       You are offline. Some content may not load.
     </div>
   );
@@ -141,13 +155,21 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-primary focus:px-3 focus:py-2">Skip to content</a>
-      <OfflineBanner />
-      <Header />
-      <main id="main" className="min-h-[60vh]">
-        <Outlet />
-      </main>
-      <Footer />
+      <AuthProvider>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-primary focus:px-3 focus:py-2"
+        >
+          Skip to content
+        </a>
+        <OfflineBanner />
+        <Header />
+        <main id="main" className="min-h-[60vh]">
+          <Outlet />
+        </main>
+        <Footer />
+        <Toaster theme="dark" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

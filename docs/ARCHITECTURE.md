@@ -1,5 +1,25 @@
 # SokoTZ — System Architecture
 
+## 0. Implemented architecture (verified 2026-10-23)
+> This section describes what exists. Sections below that mention Django REST Framework or PostgreSQL are **superseded proposals** (DEC-020).
+
+```text
+Browser (TanStack Start / React)            Android app (Kotlin)
+  src/lib/auth  ── Firebase Auth ──┐     ┌── Firebase Auth
+  src/lib/api   ── Firestore SDK ──┼─────┼── Firestore SDK
+                                   ▼     ▼
+        Firebase project gen-lang-client-0905574889
+        Named Firestore DB ai-studio-android-sokotz-…-ea8b41319929
+        (users, businesses, listings, listings/*/viewers) + firestore.rules
+Server route /api/assistant ── Lovable AI Gateway (credentials server-side)
+```
+- Pages read/write only through `src/lib/api/services.ts`; adapters in `mappers.ts` keep documents Android-compatible.
+- Authorization is enforced by Firestore Security Rules (source of truth: Android repo; mirror in `firebase/firestore.rules`). The website has no privileged server credentials.
+- The Assistant receives only public PUBLISHED listings retrieved by the browser for the current question.
+- Images are stored inline in `listings.imageUrl` (as Android does); Cloud Storage is not used.
+- Details: [FIREBASE_SETUP.md](FIREBASE_SETUP.md), [API_CONTRACTS.md](API_CONTRACTS.md), [AUDIT_REPORT.md](AUDIT_REPORT.md).
+
+
 ## 1. Architecture Purpose
 Document the actual current system and the approved target design. Never describe a proposed component as already implemented.
 

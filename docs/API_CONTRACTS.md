@@ -1,31 +1,32 @@
-# SokoTZ — API Contracts (PROPOSED)
+# SokoTZ — Data Contracts (IMPLEMENTED)
 
-Status: **Proposed. No backend exists yet.** These are what the website expects; the Django API and mobile app should follow them or this file must be updated.
+Status: **Implemented 2026-10-23.** The website and the Android app share one Firebase project and the named Firestore DB `ai-studio-android-sokotz-17bca192-1896-4b7e-b183-ea8b41319929`. The earlier proposed Django REST contract is **superseded** (see DECISIONS.md DEC-020). There is no custom REST API.
 
 ## Conventions
-- Base URL from `VITE_API_BASE_URL` (web). Versioned paths: `/v1/...`.
-- Auth: `Authorization: Bearer <access token>`. No cookie-only auth, so mobile works identically.
-- IDs are opaque strings. Timestamps ISO 8601 UTC.
-- Lists return `{ results, count, next, previous }`; `?page=N`.
-- Errors return `{ detail: string, errors?: { field: string[] } }`. Status mapping: 400/422 validation, 401 unauthorized, 403 forbidden, 404 not found, 429 rate limited, 5xx server.
+- Auth: Firebase Authentication (email/password, Google). Identity = Firebase UID.
+- IDs: Firestore document IDs (opaque strings). Timestamps: Firestore `Timestamp` via `serverTimestamp()`.
+- Enums are upper-case: roles `CUSTOMER|BUSINESS_OWNER|ADMIN`, type `PRODUCT|SERVICE`, status `PUBLISHED|PENDING_REVIEW|DRAFT`.
+- Field names are defined by Android `MarketplaceModels.kt`; see `src/lib/api/types.ts`. Do not rename without a migration plan.
 
-## Endpoints
-| Method | Path | Purpose |
+## Collections
+| Path | Read | Write (enforced by firestore.rules) |
 |---|---|---|
-| GET | /v1/categories/ | List categories |
-| GET | /v1/listings/?q&category&region&type&page | Search published listings |
-| GET | /v1/listings/{id}/ | Listing detail |
-| GET | /v1/businesses/{slug}/ | Business profile (published contact fields only) |
-| POST | /v1/auth/register/ | `{name,email,password}` |
-| POST | /v1/auth/login/ | `{email,password}` → `{access,refresh}` |
-| POST | /v1/auth/password-reset/ | `{email}` |
-| POST | /v1/auth/password-reset/confirm/ | `{token,password}` |
+| `users/{uid}` | owner only | create own (role ≠ ADMIN); update own (role/userId immutable) |
+| `businesses/{id}` | public | create with own `ownerId`, `isVerified=false`, `rating=0`, `reviewCount=0`; owner updates without changing owner/verification/rating |
+| `listings/{id}` | public | create under own business, `isFeatured=false`, `viewsCount=0`; owner updates without changing owner/business/featured; anyone signed in may +1 `viewsCount` |
+| `listings/{id}/viewers/{uid}` | signed in | create own |
 
-Entity shapes: `src/lib/api/types.ts`.
+## Website operations (`src/lib/api/services.ts`)
+| Operation | Firestore call |
+|---|---|
+| Public catalogue | `listings where status == PUBLISHED limit 500` (filtered/paginated in browser) |
+| Listing detail | `get listings/{id}`; non-PUBLISHED returned only to its owner |
+| Business detail + listings | `get businesses/{id}`; `listings where businessId == id and status == PUBLISHED` |
+| My business | `businesses where ownerId == uid limit 1` |
+| My listings | `listings where ownerId == uid` |
+| Create/update business/listing | `addDoc` / partial `updateDoc` built by `mappers.ts` |
+| Hide / publish | `updateDoc {status: DRAFT|PUBLISHED}` |
+| Delete listing | `deleteDoc` |
 
-## Extension points (website)
-- `src/lib/api/services.ts` — add one service per feature (favorites, reviews, notifications, assistant, moderation).
-- `src/routes/dashboard.tsx` — add `beforeLoad` auth guard once auth exists.
-- `src/routes/admin.tsx` — admin tools behind backend role checks.
-- `src/routes/assistant.tsx` — connect to a backend assistant endpoint (DEC-008, DEC-011).
-- Localization: language switch in footer is marked Planned.
+## Server route
+`POST /api/assistant` — body `{ lang, messages[], listings[] }`; `listings` are public listings already retrieved by the browser (max 8, validated). Streams text. Credentials stay server-side.

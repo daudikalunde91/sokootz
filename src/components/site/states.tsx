@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Clock, PlugZap, SearchX, WifiOff } from "lucide-react";
+import { Clock, Lock, PlugZap, SearchX, WifiOff } from "lucide-react";
 import { ApiError } from "@/lib/api/client";
 
 export function PlannedBadge({ children = "Planned" }: { children?: ReactNode }) {
@@ -11,7 +11,17 @@ export function PlannedBadge({ children = "Planned" }: { children?: ReactNode })
   );
 }
 
-export function EmptyState({ icon, title, body, action }: { icon?: ReactNode; title: string; body?: string; action?: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  body,
+  action,
+}: {
+  icon?: ReactNode;
+  title: string;
+  body?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="rounded-2xl border border-dashed bg-surface/60 px-6 py-12 text-center">
       <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent text-neon">
@@ -24,34 +34,102 @@ export function EmptyState({ icon, title, body, action }: { icon?: ReactNode; ti
   );
 }
 
-/** Maps a service error to a user-facing state. */
-export function DataState({ error }: { error: unknown }) {
-  if (error instanceof ApiError && error.code === "not_configured") {
+/** Maps a service error to a user-facing state. Never substitutes sample data. */
+export function DataState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  const retry = onRetry ? (
+    <button type="button" onClick={onRetry} className="min-h-11 text-neon underline">
+      Try again
+    </button>
+  ) : undefined;
+  const code = error instanceof ApiError ? error.code : "server";
+  if (code === "not_configured") {
     return (
       <EmptyState
         icon={<PlugZap className="size-6" aria-hidden />}
-        title="No listings yet"
-        body="SokoTZ is getting ready to launch. Businesses and listings will appear here once the marketplace opens."
+        title="Marketplace not connected yet"
+        body="The website's connection to the SokoTZ marketplace is still being set up. Listings will appear here once it is ready."
       />
     );
   }
-  if (error instanceof ApiError && error.code === "network") {
-    return <EmptyState icon={<WifiOff className="size-6" aria-hidden />} title="You appear to be offline" body={error.message} />;
+  if (code === "network") {
+    return (
+      <EmptyState
+        icon={<WifiOff className="size-6" aria-hidden />}
+        title="You appear to be offline"
+        body="Check your connection and try again."
+        action={retry}
+      />
+    );
   }
-  if (error instanceof ApiError && error.code === "not_found") {
-    return <EmptyState title="Not found" body="This page may have been removed." action={<Link to="/search" className="text-neon underline">Browse the marketplace</Link>} />;
+  if (code === "not_found") {
+    return (
+      <EmptyState
+        title="Not found"
+        body="This page may have been removed or is not public."
+        action={
+          <Link to="/search" className="text-neon underline">
+            Browse the marketplace
+          </Link>
+        }
+      />
+    );
   }
-  return <EmptyState title="Something went wrong" body="Please try again in a moment." />;
+  if (code === "forbidden" || code === "unauthorized") {
+    return (
+      <EmptyState
+        icon={<Lock className="size-6" aria-hidden />}
+        title="Sign-in required"
+        body="The marketplace isn't open to visitors right now. Log in with your SokoTZ account to continue."
+        action={
+          <Link to="/auth/login" className="text-neon underline">
+            Log in
+          </Link>
+        }
+      />
+    );
+  }
+  if (code === "index_required") {
+    return (
+      <EmptyState
+        title="This view isn't ready yet"
+        body="A database index still needs to be created for this view. Please try again later."
+      />
+    );
+  }
+  if (code === "rate_limited") {
+    return (
+      <EmptyState
+        title="Too many requests"
+        body="Please wait a moment and try again."
+        action={retry}
+      />
+    );
+  }
+  return (
+    <EmptyState title="Something went wrong" body="Please try again in a moment." action={retry} />
+  );
 }
 
 export function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded-xl bg-muted ${className}`} aria-hidden />;
 }
 
-export function PageHeader({ eyebrow, title, body, children }: { eyebrow?: string; title: string; body?: string; children?: ReactNode }) {
+export function PageHeader({
+  eyebrow,
+  title,
+  body,
+  children,
+}: {
+  eyebrow?: string;
+  title: string;
+  body?: string;
+  children?: ReactNode;
+}) {
   return (
     <header className="mb-8">
-      {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neon">{eyebrow}</p>}
+      {eyebrow && (
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-neon">{eyebrow}</p>
+      )}
       <h1 className="break-words text-3xl font-bold md:text-4xl">{title}</h1>
       {body && <p className="mt-3 max-w-2xl text-muted-foreground">{body}</p>}
       {children}
